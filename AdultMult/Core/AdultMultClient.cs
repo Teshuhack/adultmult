@@ -47,7 +47,6 @@ namespace AdultMult.Core
             {
                 Mult multObject = new Mult
                 {
-                    Id = new Random().Next(int.MaxValue),
                     Thumbnail = node.SelectSingleNode(imageNodeXPath).Attributes["src"].Value,
                     RussianCaption = node.SelectSingleNode(russianCaptionNodeXPath).InnerText,
                     EnglishCaption = node.SelectSingleNode(englishCaptionNodeXPath).InnerText,
@@ -56,6 +55,7 @@ namespace AdultMult.Core
 
                 multsList.Add(multObject);
             }
+
             return multsList;
         }
     }

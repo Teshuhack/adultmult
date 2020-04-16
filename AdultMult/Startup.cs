@@ -1,4 +1,6 @@
 using AdultMult.DataProvider;
+using AdultMult.Models;
+using AdultMult.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +22,13 @@ namespace AdultMult
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services
+                .AddControllers()
+                .AddNewtonsoftJson();
+
+            services.AddScoped<IUpdateService, UpdateService>();
+            services.AddSingleton<IBotService, BotService>();
+            services.Configure<BotConfiguration>(Configuration.GetSection("BotConfiguration"));
             services.AddDbContext<AdultMultContext>(options =>
             {
                 options.UseNpgsql(Configuration.GetConnectionString("AdultMultDatabase"));
