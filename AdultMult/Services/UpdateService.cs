@@ -27,6 +27,17 @@ namespace AdultMult.Services
 
             _logger.LogInformation("Received message from {0}", message.Chat.Id);
 
+            var commands = _botService.Commands;
+
+            foreach (var command in commands)
+            {
+                if (command.Contains(message))
+                {
+                    await command.Execute(message, _botService.Client);
+                    break;
+                }
+            }
+
             switch (message.Type)
             {
                 case MessageType.Text:

@@ -1,6 +1,8 @@
 using AdultMult.DataProvider;
 using AdultMult.Models;
 using AdultMult.Services;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -27,11 +29,18 @@ namespace AdultMult
                 .AddNewtonsoftJson();
 
             services.AddScoped<IUpdateService, UpdateService>();
+            services.AddScoped<IJobService, JobService>();
             services.AddSingleton<IBotService, BotService>();
             services.Configure<BotConfiguration>(Configuration.GetSection("BotConfiguration"));
+
             services.AddDbContext<AdultMultContext>(options =>
             {
                 options.UseNpgsql(Configuration.GetConnectionString("AdultMultDatabase"));
+            });
+
+            services.AddHangfire(options =>
+            {
+                options.UsePostgreSqlStorage(Configuration.GetConnectionString("HangfireDatabase"));
             });
         }
 
@@ -48,6 +57,16 @@ namespace AdultMult
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseHangfireServer(new BackgroundJobServerOptions
+            {
+                WorkerCount = 1
+            });
+
+            app.UseHangfireDashboard();
+
+            GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
+            HangfireJobScheduler.SchedulerReccuringJobs();
 
             app.UseEndpoints(endpoints =>
             {
