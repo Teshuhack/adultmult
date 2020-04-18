@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace AdultMult.Services
 {
-    public interface IJobService
+    public interface IJob
     {
         Task RunAtTimeOf(DateTime now);
     }

@@ -1,6 +1,7 @@
 using AdultMult.DataProvider;
 using AdultMult.Models;
 using AdultMult.Services;
+using AdultMult.Services.JobService;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
@@ -29,7 +30,7 @@ namespace AdultMult
                 .AddNewtonsoftJson();
 
             services.AddScoped<IAdultMultService, AdultMultService>();
-            services.AddScoped<IJobService, JobService>();
+            services.AddScoped<IJob, Job>();
             services.AddSingleton<IBotService, BotService>();
             services.Configure<BotConfiguration>(Configuration.GetSection("BotConfiguration"));
 
@@ -63,7 +64,10 @@ namespace AdultMult
                 WorkerCount = 1
             });
 
-            app.UseHangfireDashboard("/hangfire");
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new HangfireDashboardAuthorizationFilter() }
+            });
 
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
             HangfireJobScheduler.SchedulerReccuringJobs();

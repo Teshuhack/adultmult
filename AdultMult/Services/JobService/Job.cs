@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace AdultMult.Services
 {
-    public class JobService : IJobService
+    public class Job : IJob
     {
-        private readonly ILogger<JobService> _logger;
+        private readonly ILogger<Job> _logger;
         private readonly AdultMultContext _adultMultContext;
         private readonly IBotService _botService;
         private readonly IAdultMultService _adultMultService;
 
-        public JobService(
-            ILogger<JobService> logger,
+        public Job(
+            ILogger<Job> logger,
             AdultMultContext adultMultContext,
             IBotService botService,
             IAdultMultService adultMultService)
