@@ -11,5 +11,7 @@
         public string Series { get; set; }
 
         public string Thumbnail { get; set; }
+
+        public bool IsUpdated { get; set; }
     }
 }

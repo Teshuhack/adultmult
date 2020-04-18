@@ -10,7 +10,7 @@ namespace AdultMult.Services
             RecurringJob.RemoveIfExists(nameof(JobService));
             RecurringJob.AddOrUpdate<JobService>(nameof(JobService),
             job => job.Run(JobCancellationToken.Null),
-            Cron.Minutely(), TimeZoneInfo.Local);
+            Cron.Daily(12, 0), TimeZoneInfo.Local);
         }
     }
 }

@@ -39,6 +39,10 @@ namespace AdultMult.DataProvider
                 entity.Property(x => x.Thumbnail)
                     .HasColumnName("thumbnail")
                     .IsRequired();
+
+                entity.Property(x => x.IsUpdated)
+                    .HasColumnName("updated")
+                    .IsRequired();
             });
         }
     }

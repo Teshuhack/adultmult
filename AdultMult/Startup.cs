@@ -28,7 +28,7 @@ namespace AdultMult
                 .AddControllers()
                 .AddNewtonsoftJson();
 
-            services.AddScoped<IUpdateService, UpdateService>();
+            services.AddScoped<IAdultMultService, AdultMultService>();
             services.AddScoped<IJobService, JobService>();
             services.AddSingleton<IBotService, BotService>();
             services.Configure<BotConfiguration>(Configuration.GetSection("BotConfiguration"));
@@ -63,7 +63,7 @@ namespace AdultMult
                 WorkerCount = 1
             });
 
-            app.UseHangfireDashboard();
+            app.UseHangfireDashboard("/hangfire");
 
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
             HangfireJobScheduler.SchedulerReccuringJobs();

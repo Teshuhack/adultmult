@@ -1,21 +1,20 @@
-﻿using AdultMult.Models;
+﻿using AdultMult.DataProvider;
+using AdultMult.Models;
 using HtmlAgilityPack;
-using System;
-using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace AdultMult.Core
+namespace AdultMult.Services
 {
-    public class AdultMultClient
+    public class AdultMultService : IAdultMultService
     {
         private const string URL = "https://adultmult.club/";
-        private readonly string ACTUAL_URL = string.Empty;
 
-        public List<Mult> Mults { get; private set; }
+        private readonly AdultMultContext _adultMultContext;
 
-        public AdultMultClient()
+        public AdultMultService(AdultMultContext adultMultContext)
         {
-            ACTUAL_URL = GetActualUrl();
-            Mults = GetMults();
+            _adultMultContext = adultMultContext;
         }
 
         private string GetActualUrl()
@@ -28,14 +27,14 @@ namespace AdultMult.Core
             return node?.Attributes["href"].Value;
         }
 
-        private List<Mult> GetMults()
+        public async Task ParseMultsAsync()
         {
-            List<Mult> multsList = new List<Mult>();
             HtmlWeb web = new HtmlWeb();
 
+            var actualUrl = GetActualUrl();
             var parentNodeXPath = "//div[contains(concat(' ', normalize-space(@class), ' '), ' organic')]//div[contains(concat(' ', normalize-space(@class), ' '), ' indicator')]";
 
-            var htmlDoc = web.Load(ACTUAL_URL);
+            var htmlDoc = web.Load(actualUrl);
             var nodes = htmlDoc.DocumentNode.SelectNodes(parentNodeXPath);
 
             var imageNodeXPath = ".//img";
@@ -50,13 +49,27 @@ namespace AdultMult.Core
                     Thumbnail = node.SelectSingleNode(imageNodeXPath).Attributes["src"].Value,
                     RussianCaption = node.SelectSingleNode(russianCaptionNodeXPath).InnerText,
                     EnglishCaption = node.SelectSingleNode(englishCaptionNodeXPath).InnerText,
-                    Series = node.SelectSingleNode(seriesNodeXPath).InnerText
+                    Series = node.SelectSingleNode(seriesNodeXPath).InnerText,
+                    IsUpdated = false
                 };
 
-                multsList.Add(multObject);
+                var existingMult = _adultMultContext.Mults.FirstOrDefault(x => x.RussianCaption == multObject.RussianCaption);
+                if (existingMult != null)
+                {
+                    if (multObject.Series != existingMult.Series)
+                    {
+                        existingMult.Series = multObject.Series;
+                        existingMult.IsUpdated = true;
+                        await _adultMultContext.SaveChangesAsync();
+                    }
+                }
+                else
+                {
+                    await _adultMultContext.Mults.AddAsync(multObject);
+                }
             }
 
-            return multsList;
+            await _adultMultContext.SaveChangesAsync();
         }
     }
 }
