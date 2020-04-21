@@ -1,7 +1,9 @@
 ﻿using AdultMult.DataProvider;
 using AdultMult.Helpers;
+using AdultMult.Models;
 using Hangfire;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,17 +16,21 @@ namespace AdultMult.Services
         private readonly AdultMultContext _adultMultContext;
         private readonly IBotService _botService;
         private readonly IAdultMultService _adultMultService;
+        private readonly BotConfiguration _botConfiguration;
+        private const string NO_UPDATES_MESSAGE = "Обновлений нет";
 
         public Job(
             ILogger<Job> logger,
             AdultMultContext adultMultContext,
             IBotService botService,
-            IAdultMultService adultMultService)
+            IAdultMultService adultMultService,
+            IOptions<BotConfiguration> botConfiguration)
         {
             _logger = logger;
             _adultMultContext = adultMultContext;
             _botService = botService;
             _adultMultService = adultMultService;
+            _botConfiguration = botConfiguration.Value;
         }
 
         public async Task Run(IJobCancellationToken token)
@@ -40,12 +46,19 @@ namespace AdultMult.Services
             await _adultMultService.ParseMultsAsync();
             var mults = _adultMultContext.Mults.Where(x => x.IsUpdated).ToList();
 
-            mults.ForEach(x => x.IsUpdated = default);
+            if (mults.Any())
+            {
+                mults.ForEach(x => x.IsUpdated = default);
 
-            await _adultMultContext.SaveChangesAsync();
-            var result = AdultMultHelper.PrintMultsCollection(mults);
+                await _adultMultContext.SaveChangesAsync();
+                var result = AdultMultHelper.PrintMultsCollection(mults);
 
-            await _botService.Client.SendTextMessageAsync(191182294, result);
+                await _botService.Client.SendTextMessageAsync(_botConfiguration.ChatId, result);
+            }
+            else
+            {
+                await _botService.Client.SendTextMessageAsync(_botConfiguration.ChatId, NO_UPDATES_MESSAGE);
+            }
 
             _logger.LogInformation("My Job completed.");
         }
