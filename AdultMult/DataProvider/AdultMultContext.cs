@@ -28,16 +28,12 @@ namespace AdultMult.DataProvider
                     .HasColumnName("russiancaption")
                     .IsRequired();
 
-                entity.Property(x => x.EnglishCaption)
-                    .HasColumnName("englishcaption")
-                    .IsRequired();
-
                 entity.Property(x => x.Series)
                     .HasColumnName("series")
                     .IsRequired();
 
-                entity.Property(x => x.Thumbnail)
-                    .HasColumnName("thumbnail")
+                entity.Property(x => x.UpdateDate)
+                    .HasColumnName("updatedate")
                     .IsRequired();
 
                 entity.Property(x => x.IsUpdated)

@@ -1,6 +1,7 @@
 ﻿using AdultMult.DataProvider;
 using AdultMult.Models;
 using HtmlAgilityPack;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -37,20 +38,16 @@ namespace AdultMult.Services
             var htmlDoc = web.Load(actualUrl);
             var nodes = htmlDoc.DocumentNode.SelectNodes(parentNodeXPath);
 
-            var imageNodeXPath = ".//img";
             var russianCaptionNodeXPath = ".//span[@class ='live_namerus']";
-            var englishCaptionNodeXPath = ".//span[@class ='live_nameeng']";
             var seriesNodeXPath = ".//span[@class ='live_series']";
 
             foreach (var node in nodes)
             {
                 Mult multObject = new Mult
                 {
-                    Thumbnail = node.SelectSingleNode(imageNodeXPath).Attributes["src"].Value,
                     RussianCaption = node.SelectSingleNode(russianCaptionNodeXPath).InnerText,
-                    EnglishCaption = node.SelectSingleNode(englishCaptionNodeXPath).InnerText,
                     Series = node.SelectSingleNode(seriesNodeXPath).InnerText,
-                    IsUpdated = false
+                    UpdateDate = DateTime.Now.Date
                 };
 
                 var existingMult = _adultMultContext.Mults.FirstOrDefault(x => x.RussianCaption == multObject.RussianCaption);
@@ -65,6 +62,7 @@ namespace AdultMult.Services
                 }
                 else
                 {
+                    multObject.IsUpdated = true;
                     await _adultMultContext.Mults.AddAsync(multObject);
                 }
             }

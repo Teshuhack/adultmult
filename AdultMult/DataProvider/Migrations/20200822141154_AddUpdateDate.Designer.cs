@@ -3,15 +3,17 @@ using System;
 using AdultMult.DataProvider;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace AdultMult.Migrations
 {
     [DbContext(typeof(AdultMultContext))]
-    partial class AdultMultContextModelSnapshot : ModelSnapshot
+    [Migration("20200822141154_AddUpdateDate")]
+    partial class AddUpdateDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,6 +29,11 @@ namespace AdultMult.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<string>("EnglishCaption")
+                        .IsRequired()
+                        .HasColumnName("englishcaption")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsUpdated")
                         .HasColumnName("updated")
                         .HasColumnType("boolean");
@@ -39,6 +46,11 @@ namespace AdultMult.Migrations
                     b.Property<string>("Series")
                         .IsRequired()
                         .HasColumnName("series")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Thumbnail")
+                        .IsRequired()
+                        .HasColumnName("thumbnail")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateDate")
